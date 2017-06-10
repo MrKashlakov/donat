@@ -35,7 +35,7 @@ const port = argv.port || process.env.PORT || 3000;
 app.use(bodyParser.urlencoded({ extended: false }));
 
 const donationController = new GetDonationController();
-app.get('/donation', (req, res) => donationController.handle(req, res, io));
+app.post('/donation', (req, res) => donationController.handle(req, res, io));
 
 io.listen(5000);
 
