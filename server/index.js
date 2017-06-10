@@ -9,7 +9,10 @@ const isDev = process.env.NODE_ENV !== 'production';
 const ngrok = (isDev && process.env.ENABLE_TUNNEL) || argv.tunnel ? require('ngrok') : false;
 const resolve = require('path').resolve;
 const app = express();
-const io = require('socket.io')(app);
+
+
+const server = require('http').createServer(app);
+const io = require('socket.io').listen(server);
 
 // If you need a backend, e.g. an API, add your custom backend-specific middleware here
 // app.use('/api', myApi);
@@ -27,9 +30,12 @@ const prettyHost = customHost || 'localhost';
 
 const port = argv.port || process.env.PORT || 3000;
 
-io.on('connection', () => {
-  io.emit('donation alet', { sum: '100', username: '@test', message: 'Hi! Donate 100 for coding' });
+app.get('/donation', (req, res) => {
+  io.emit('donation alert', { sum: '100', username: '@test', message: 'Hi! Donate here!' });
+  res.send();
 });
+
+io.listen(5000);
 
 // Start your app.
 app.listen(port, host, (err) => {

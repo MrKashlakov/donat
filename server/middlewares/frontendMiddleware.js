@@ -31,7 +31,7 @@ const addDevMiddlewares = (app, webpackConfig) => {
     });
   }
 
-  app.get('*', (req, res) => {
+  app.get('/', (req, res) => {
     fs.readFile(path.join(compiler.outputPath, 'index.html'), (err, file) => {
       if (err) {
         res.sendStatus(404);
@@ -53,7 +53,7 @@ const addProdMiddlewares = (app, options) => {
   app.use(compression());
   app.use(publicPath, express.static(outputPath));
 
-  app.get('*', (req, res) => res.sendFile(path.resolve(outputPath, 'index.html')));
+  app.get('/', (req, res) => res.sendFile(path.resolve(outputPath, 'index.html')));
 };
 
 /**

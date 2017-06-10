@@ -7,37 +7,31 @@
  */
 
 import React from 'react';
-import Helmet from 'react-helmet';
-import styled from 'styled-components';
-
-import Header from 'components/Header';
-import Footer from 'components/Footer';
 import withProgressBar from 'components/ProgressBar';
+import { Event, Socket } from 'react-socket-io';
 
-const AppWrapper = styled.div`
-  max-width: calc(768px + 16px * 2);
-  margin: 0 auto;
-  display: flex;
-  min-height: 100%;
-  padding: 0 16px;
-  flex-direction: column;
-`;
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      message: null,
+    };
+  }
 
-export function App(props) {
-  return (
-    <AppWrapper>
-      <Helmet
-        titleTemplate="%s - React.js Boilerplate"
-        defaultTitle="React.js Boilerplate"
-        meta={[
-          { name: 'description', content: 'A React.js Boilerplate application' },
-        ]}
-      />
-      <Header />
-      {React.Children.toArray(props.children)}
-      <Footer />
-    </AppWrapper>
-  );
+  onMessage(message) {
+    console.log('------ START -----');
+    console.log(message);
+    console.log('------- END -------');
+  }
+
+  render() {
+    const options = { transport: ['websocket'] };
+    return (
+      <Socket uri="http://localhost:5000" options={options}>
+        <Event event="donation alert" handler={this.onMessage} />
+      </Socket>
+    );
+  }
 }
 
 App.propTypes = {
