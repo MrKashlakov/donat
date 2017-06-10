@@ -24,18 +24,30 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      alert: null,
+      alerts: [],
     };
   }
 
   onMessage(alert) {
-    this.setState({ alert });
+    const alerts = Array.isArray(this.state.alerts) ? this.state.alerts : [];
+    this.setState({
+      alerts: [...alerts, alert]
+    });
   }
 
   getAlert() {
-    const alert = this.state.alert;
-    if (alert) {
-      return <Alert username={alert.username} sum={alert.sum} message={alert.message} />
+    if (Array.isArray(this.state.alerts) && this.state.alerts.length !== 0) {
+      const alert = this.state.alerts[0];
+
+      setTimeout(() => {
+        this.setState({
+          alerts: this.state.alerts.slice(1),
+        });
+      }, 30000);
+
+      return (
+        <Alert username={alert.username} sum={alert.sum} message={alert.message} />
+      );
     }
     return null;
   }
