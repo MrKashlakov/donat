@@ -15,18 +15,18 @@ import Footer from 'components/Footer';
 import withProgressBar from 'components/ProgressBar';
 import Alert from 'components/Alert';
 
-const AppWrapper = styled.div`
-  max-width: calc(768px + 16px * 2);
-  margin: 0 auto;
+const Wrapper = styled.div`
   display: flex;
   min-height: 100%;
-  padding: 0 16px;
   flex-direction: column;
+  padding: 21px;
 `;
 
 export function App(props) {
   return (
-    <Alert>Hello</Alert>
+    <Wrapper>
+      <Alert username="@test" sum="10" message="Hi! Donation here!!"/>
+    </Wrapper>
   );
 }
 
