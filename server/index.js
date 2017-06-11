@@ -84,6 +84,12 @@ const tokenComplete = (err, data) => {
       }
 
       console.log(3, data)
+
+      User.update({
+        _id: data._id
+      }, {
+        token: access_token
+      });
     });
   });
 };
@@ -92,7 +98,6 @@ app.get('/save', (req, res) => {
   const code = req.query.code;
   const redirectURI = 'http://localhost:3000/user';
       console.log(0, code)
-  console.log('params', clientId, code, redirectURI, clientSecret)
 
   yandexMoney.Wallet.getAccessToken(clientId, code, redirectURI, clientSecret, tokenComplete);
 });
