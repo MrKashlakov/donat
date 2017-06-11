@@ -42,28 +42,17 @@ const config = require('./../config.json');
 const clientId = config.clientId;
 const clientSecret = config.clientSecret;
 const scope = ['account-info', 'operation-history'];
+const redirectURI = 'http://localhost:3000/user';
+const url = yandexMoney.Wallet.buildObtainTokenUrl(clientId, redirectURI, scope);
 
 app.get('/auth', (req, res) => {
-  const redirectURI = 'http://localhost:3000/save';
-  const url = yandexMoney.Wallet.buildObtainTokenUrl(clientId, redirectURI, scope);
-
   res.redirect(url);
 });
 
-const mongoose = require('mongoose');
-
-mongoose.connect('mongodb://localhost/user');
-
-const UserSchema = mongoose.Schema({
-  account: String,
-  token: String,
-});
-const User = mongoose.model('User', UserSchema);
-const tokenComplete = (err, data) => {
+const tokenComplete = (req, res) => (err, data) => {
   if (err) {
     throw new Error(err);
   }
-      console.log(1, data)
 
   const access_token = data.access_token;
   const api = new yandexMoney.Wallet(access_token);
@@ -73,37 +62,15 @@ const tokenComplete = (err, data) => {
       throw new Error(err);
     }
       console.log(2, data)
-
-    const account = data.account;
-
-    User.findOrCreate({
-      account
-    }, (err, data) => {
-      if (err) {
-        throw new Error(err);
-      }
-
-      console.log(3, data)
-
-      User.update({
-        _id: data._id
-      }, {
-        token: access_token
-      });
-    });
   });
+
+  res.header('Authorization', `Bearer ${access_token}`);
 };
 
-app.get('/save', (req, res) => {
-  const code = req.query.code;
-  const redirectURI = 'http://localhost:3000/user';
-      console.log(0, code)
-
-  yandexMoney.Wallet.getAccessToken(clientId, code, redirectURI, clientSecret, tokenComplete);
-});
-
 app.get('/user', (req, res) => {
-      console.log(4, req)
+  const code = req.query.code;
+
+  yandexMoney.Wallet.getAccessToken(clientId, code, redirectURI, clientSecret, tokenComplete(req, res));
 });
 
 io.listen(5000);
