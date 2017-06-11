@@ -2112,13 +2112,13 @@ debug@2.3.3:
   dependencies:
     ms "0.7.2"
 
-debug@2.6.7:
+debug@2.6.7, debug@^2.1.1, debug@^2.2.0, debug@~2.6.6:
   version "2.6.7"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.7.tgz#92bad1f6d05bbb6bba22cca88bcd0ec894c2861e"
   dependencies:
     ms "2.0.0"
 
-debug@2.6.8, debug@^2.1.1, debug@^2.2.0, debug@~2.6.4, debug@~2.6.6:
+debug@2.6.8, debug@~2.6.4:
   version "2.6.8"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.8.tgz#e731531ca2ede27d188222427da17821d68ff4fc"
   dependencies:
@@ -5213,7 +5213,7 @@ miller-rabin@^4.0.0:
     bn.js "^4.0.0"
     brorand "^1.0.1"
 
-"mime-db@>= 1.24.0 < 2", mime-db@~1.25.0:
+"mime-db@>= 1.24.0 < 2":
   version "1.25.0"
   resolved "https://registry.yarnpkg.com/mime-db/-/mime-db-1.25.0.tgz#c18dbd7c73a5dbf6f44a024dc0d165a1e7b1c392"
 
@@ -5221,13 +5221,7 @@ mime-db@~1.27.0:
   version "1.27.0"
   resolved "https://registry.yarnpkg.com/mime-db/-/mime-db-1.27.0.tgz#820f572296bbd20ec25ed55e5b5de869e5436eb1"
 
-mime-types@^2.1.11, mime-types@^2.1.12, mime-types@~2.1.11, mime-types@~2.1.13, mime-types@~2.1.7:
-  version "2.1.13"
-  resolved "https://registry.yarnpkg.com/mime-types/-/mime-types-2.1.13.tgz#e07aaa9c6c6b9a7ca3012c69003ad25a39e92a88"
-  dependencies:
-    mime-db "~1.25.0"
-
-mime-types@~2.1.15:
+mime-types@^2.1.11, mime-types@^2.1.12, mime-types@~2.1.11, mime-types@~2.1.15, mime-types@~2.1.7:
   version "2.1.15"
   resolved "https://registry.yarnpkg.com/mime-types/-/mime-types-2.1.15.tgz#a4ebf5064094569237b8cf70046776d09fc92aed"
   dependencies:
@@ -6799,6 +6793,10 @@ request@2.75.0, request@^2.55.0:
     tough-cookie "~2.3.0"
     tunnel-agent "~0.4.1"
 
+request@2.9.x:
+  version "2.9.203"
+  resolved "https://registry.yarnpkg.com/request/-/request-2.9.203.tgz#6c1711a5407fb94a114219563e44145bcbf4723a"
+
 request@^2.79.0:
   version "2.79.0"
   resolved "https://registry.yarnpkg.com/request/-/request-2.79.0.tgz#4dfe5bf6be8b8cdc37fcf93e04b65577722710de"
@@ -7691,14 +7689,7 @@ type-check@~0.3.2:
   dependencies:
     prelude-ls "~1.1.2"
 
-type-is@~1.6.13:
-  version "1.6.14"
-  resolved "https://registry.yarnpkg.com/type-is/-/type-is-1.6.14.tgz#e219639c17ded1ca0789092dd54a03826b817cb2"
-  dependencies:
-    media-typer "0.3.0"
-    mime-types "~2.1.13"
-
-type-is@~1.6.15:
+type-is@~1.6.13, type-is@~1.6.15:
   version "1.6.15"
   resolved "https://registry.yarnpkg.com/type-is/-/type-is-1.6.15.tgz#cab10fb4909e441c82842eafe1ad646c81804410"
   dependencies:
@@ -8161,6 +8152,12 @@ y18n@^3.2.1:
 yallist@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/yallist/-/yallist-2.0.0.tgz#306c543835f09ee1a4cb23b7bce9ab341c91cdd4"
+
+yandex-money-sdk@^0.1.6:
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/yandex-money-sdk/-/yandex-money-sdk-0.1.6.tgz#4c4e890ceb2ff08bf634636d9d6077b0872c9014"
+  dependencies:
+    request "2.9.x"
 
 yargs-parser@^4.2.0:
   version "4.2.0"

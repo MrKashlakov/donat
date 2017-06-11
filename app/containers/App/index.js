@@ -55,12 +55,15 @@ class App extends React.Component {
   render() {
     const options = { transport: ['websocket'] };
     return (
-      <Socket uri="http://localhost:5000" options={options}>
-        <Wrapper>
-          <Event event="donation alert" handler={(alert) => this.onMessage(alert)} />
-          {this.getAlert()}
-        </Wrapper>
-      </Socket>
+      <div>
+        <a href="/auth">Auth</a>
+        <Socket uri="http://localhost:5000" options={options}>
+          <Wrapper>
+            <Event event="donation alert" handler={(alert) => this.onMessage(alert)} />
+            {this.getAlert()}
+          </Wrapper>
+        </Socket>
+      </div>
     );
   }
 }

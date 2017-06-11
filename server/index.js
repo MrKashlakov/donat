@@ -37,6 +37,70 @@ app.use(bodyParser.urlencoded({ extended: false }));
 const donationController = new GetDonationController();
 app.post('/donation', (req, res) => donationController.handle(req, res, io));
 
+const yandexMoney = require('yandex-money-sdk');
+const config = require('./../config.json');
+const clientId = config.clientId;
+const clientSecret = config.clientSecret;
+const scope = ['account-info', 'operation-history'];
+
+app.get('/auth', (req, res) => {
+  const redirectURI = 'http://localhost:3000/save';
+  const url = yandexMoney.Wallet.buildObtainTokenUrl(clientId, redirectURI, scope);
+
+  res.redirect(url);
+});
+
+const mongoose = require('mongoose');
+
+mongoose.connect('mongodb://localhost/user');
+
+const UserSchema = mongoose.Schema({
+  account: String,
+  token: String,
+});
+const User = mongoose.model('User', UserSchema);
+const tokenComplete = (err, data) => {
+  if (err) {
+    throw new Error(err);
+  }
+      console.log(1, data)
+
+  const access_token = data.access_token;
+  const api = new yandexMoney.Wallet(access_token);
+
+  api.accountInfo((err, data) => {
+    if (err) {
+      throw new Error(err);
+    }
+      console.log(2, data)
+
+    const account = data.account;
+
+    User.findOrCreate({
+      account
+    }, (err, data) => {
+      if (err) {
+        throw new Error(err);
+      }
+
+      console.log(3, data)
+    });
+  });
+};
+
+app.get('/save', (req, res) => {
+  const code = req.query.code;
+  const redirectURI = 'http://localhost:3000/user';
+      console.log(0, code)
+  console.log('params', clientId, code, redirectURI, clientSecret)
+
+  yandexMoney.Wallet.getAccessToken(clientId, code, redirectURI, clientSecret, tokenComplete);
+});
+
+app.get('/user', (req, res) => {
+      console.log(4, req)
+});
+
 io.listen(5000);
 
 // Start your app.
