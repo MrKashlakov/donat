@@ -38,39 +38,131 @@ const donationController = new GetDonationController();
 app.post('/donation', (req, res) => donationController.handle(req, res, io));
 
 const yandexMoney = require('yandex-money-sdk');
-const config = require('./../config.json');
+const cookieParser = require('cookie-parser');
+const { createElement } = require('react');
+const { renderToStaticMarkup } = require('react-dom/server');
+const config = require('../config.json');
+const REDIRECT_URI = 'http://localhost:3000/save';
 const clientId = config.clientId;
 const clientSecret = config.clientSecret;
-const scope = ['account-info', 'operation-history'];
-const redirectURI = 'http://localhost:3000/user';
-const url = yandexMoney.Wallet.buildObtainTokenUrl(clientId, redirectURI, scope);
+const url = yandexMoney.Wallet.buildObtainTokenUrl(clientId, REDIRECT_URI, ['account-info', 'operation-history', 'incoming-transfers']);
+const Html = ({ children }) => createElement('html', null, createElement('body', null, children));
+const Widget = ({ _id }) => createElement('a', {
+  href: `/widget?id=${_id}`,
+}, `widget ${_id}`);
+const Widgets = ({ widgets }) => createElement('div', null, widgets.map(({ _id }, key) => createElement(Widget, {
+  _id,
+  key,
+})));
+const AddWidget = () => createElement('form', {
+  action: '/widget',
+  method: 'post',
+}, createElement('button', {
+  type: 'submit',
+}, 'Add widget'));
+const User = ({ widgets }) => createElement(Html, null, createElement(AddWidget, null), createElement(Widgets, {
+  widgets,
+}));
+const mongoose = require('mongoose');
+const WidgetModel = mongoose.model('Widget', mongoose.Schema({
+  account: String,
+}));
+
+mongoose.connect('mongodb://localhost/widget');
+
+app.use(cookieParser());
 
 app.get('/auth', (req, res) => {
   res.redirect(url);
 });
 
-const tokenComplete = (req, res) => (err, data) => {
-  if (err) {
-    throw new Error(err);
-  }
-
-  const access_token = data.access_token;
-  const api = new yandexMoney.Wallet(access_token);
-
-  api.accountInfo((err, data) => {
+app.get('/save', (req, res) => {
+  yandexMoney.Wallet.getAccessToken(clientId, req.query.code, REDIRECT_URI, clientSecret, (err, data) => {
     if (err) {
-      throw new Error(err);
-    }
-      console.log(2, data)
-  });
+      console.error(err);
 
-  res.header('Authorization', `Bearer ${access_token}`);
-};
+      res.status(400).redirect('/');
+    }
+
+    res.cookie('token', `${data.access_token}`);
+    res.redirect('/user');
+  });
+});
 
 app.get('/user', (req, res) => {
-  const code = req.query.code;
+  if (req.cookies.token === undefined) {
+    res.status(401).redirect('/');
+  }
 
-  yandexMoney.Wallet.getAccessToken(clientId, code, redirectURI, clientSecret, tokenComplete(req, res));
+  const api = new yandexMoney.Wallet(req.cookies.token);
+
+  api.accountInfo((err, { account }) => {
+    if (err) {
+      console.error(err);
+
+      res.status(400).redirect('/');
+    }
+
+    WidgetModel.find({
+      account,
+    }, (err, widgets) => {
+      if (err) {
+        console.error(err);
+
+        res.status(400).redirect('/');
+      }
+
+      res.status(200).send(`<!doctype html>${renderToStaticMarkup(User({
+        widgets,
+      }))}`);
+    });
+  });
+});
+
+app.get('/widget', (req, res) => {
+  if (req.query.id === undefined) {
+    res.status(400).redirect('/');
+  }
+
+  WidgetModel.findById(req.query.id, (err, { _id }) => {
+    if (err) {
+      console.error(err);
+
+      res.status(400).redirect('/');
+    }
+
+    res.status(200).send(`<!doctype html>${renderToStaticMarkup(Widget({
+      _id,
+    }))}`);
+  });
+});
+
+app.post('/widget', (req, res) => {
+  if (req.cookies.token === undefined) {
+    res.status(400).redirect('/user');
+  }
+
+  const api = new yandexMoney.Wallet(req.cookies.token);
+
+  api.accountInfo((err, { account }) => {
+    if (err) {
+      console.error(err);
+
+      res.status(400).redirect('/user');
+    }
+
+    WidgetModel.create({
+      account,
+    }, (err, data) => {
+      if (err) {
+        console.error(err);
+
+        res.status(400).redirect('/user');
+      }
+
+      res.status(200).redirect('/user');
+    });
+  });
 });
 
 io.listen(5000);
