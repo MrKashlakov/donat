@@ -41,11 +41,12 @@ const yandexMoney = require('yandex-money-sdk');
 const cookieParser = require('cookie-parser');
 const { createElement } = require('react');
 const { renderToStaticMarkup } = require('react-dom/server');
+const mongoose = require('mongoose');
 const config = require('../config.json');
 const REDIRECT_URI = 'http://localhost:3000/save';
 const clientId = config.clientId;
 const clientSecret = config.clientSecret;
-const url = yandexMoney.Wallet.buildObtainTokenUrl(clientId, REDIRECT_URI, ['account-info', 'operation-history', 'incoming-transfers']);
+const url = yandexMoney.Wallet.buildObtainTokenUrl(clientId, REDIRECT_URI, ['account-info', 'operation-history', 'incoming-transfers', 'payment']);
 const Html = ({ children }) => createElement('html', null, createElement('body', null, children));
 const Widget = ({ _id }) => createElement('a', {
   href: `/widget?id=${_id}`,
@@ -63,10 +64,45 @@ const AddWidget = () => createElement('form', {
 const User = ({ widgets }) => createElement(Html, null, createElement(AddWidget, null), createElement(Widgets, {
   widgets,
 }));
-const mongoose = require('mongoose');
 const WidgetModel = mongoose.model('Widget', mongoose.Schema({
   account: String,
 }));
+const Pay = ({ account }) => createElement('form', {
+  method: 'post',
+}, createElement('input', {
+  type: 'hidden',
+  name: 'account',
+  value: account,
+}), createElement('input', {
+  type: 'radio',
+  name: 'type',
+  value: 'wallet',
+  defaultChecked: true,
+}), createElement('input', {
+  type: 'radio',
+  name: 'type',
+  value: 'card',
+}), createElement('input', {
+  type: 'number',
+  name: 'amount',
+}), createElement('button', {
+  type: 'submit',
+}, 'Pay'));
+const Page = (props) => createElement(Html, null, createElement(Pay, props));
+const FormRedirect = ({ action, params }) => createElement('form', {
+  method: 'post',
+  action,
+}, Object.keys(params).map((name, key) => createElement('input', {
+  key,
+  type: 'hidden',
+  name,
+  value: params[name],
+})), createElement('button', {
+  type: 'submit',
+}, 'Redirect'));
+const Redirect = (props) => createElement(Html, null, createElement(FormRedirect, props));
+const SuccessPage = () => createElement(Html, null, createElement('div', null, 'success'));
+const FailPage = () => createElement(Html, null, createElement('div', null, 'fail'));
 
 mongoose.connect('mongodb://localhost/widget');
 
@@ -78,7 +114,7 @@ app.get('/auth', (req, res) => {
 
 app.get('/save', (req, res) => {
   yandexMoney.Wallet.getAccessToken(clientId, req.query.code, REDIRECT_URI, clientSecret, (err, data) => {
-    if (err) {
+    if (err !== null) {
       console.error(err);
 
       res.status(400).redirect('/');
@@ -97,7 +133,7 @@ app.get('/user', (req, res) => {
   const api = new yandexMoney.Wallet(req.cookies.token);
 
   api.accountInfo((err, { account }) => {
-    if (err) {
+    if (err !== null) {
       console.error(err);
 
       res.status(400).redirect('/');
@@ -106,7 +142,7 @@ app.get('/user', (req, res) => {
     WidgetModel.find({
       account,
     }, (err, widgets) => {
-      if (err) {
+      if (err !== null) {
         console.error(err);
 
         res.status(400).redirect('/');
@@ -125,7 +161,7 @@ app.get('/widget', (req, res) => {
   }
 
   WidgetModel.findById(req.query.id, (err, { _id }) => {
-    if (err) {
+    if (err !== null) {
       console.error(err);
 
       res.status(400).redirect('/');
@@ -145,7 +181,7 @@ app.post('/widget', (req, res) => {
   const api = new yandexMoney.Wallet(req.cookies.token);
 
   api.accountInfo((err, { account }) => {
-    if (err) {
+    if (err !== null) {
       console.error(err);
 
       res.status(400).redirect('/user');
@@ -154,7 +190,7 @@ app.post('/widget', (req, res) => {
     WidgetModel.create({
       account,
     }, (err, data) => {
-      if (err) {
+      if (err !== null) {
         console.error(err);
 
         res.status(400).redirect('/user');
@@ -162,6 +198,147 @@ app.post('/widget', (req, res) => {
 
       res.status(200).redirect('/user');
     });
+  });
+});
+
+app.get('/page', (req, res) => {
+  if (req.query.id === undefined) {
+    res.status(400).redirect('/');
+  }
+
+  WidgetModel.findById(req.query.id, (err, { account }) => {
+    if (err !== null) {
+      console.error(err);
+
+      res.status(400).redirect('/');
+    }
+
+    res.status(200).send(`<!doctype html>${renderToStaticMarkup(Page({
+      account,
+    }))}`);
+  });
+});
+
+app.post('/page', (req, res) => {
+  if (req.query.id === undefined) {
+    res.status(400).redirect('/');
+  }
+
+  yandexMoney.ExternalPayment.getInstanceId(clientId, (err, { instance_id }) => {
+    if (err !== null) {
+      console.error(err);
+
+      res.status(400).redirect(`/page?id=${req.query.id}`);
+    }
+
+    if (req.body.type === 'wallet') {
+      const api = new yandexMoney.Wallet(req.cookies.token);
+
+      api.requestPayment({
+        'test_payment': true,
+        'test_card': 'available',
+        'test_result': 'success',
+        'pattern_id': 'p2p',
+        instance_id,
+        to: req.body.account,
+        amount: req.body.amount,
+        message: req.query.id,
+      }, (err, { request_id }) => {
+        if (err !== null) {
+          console.error(err);
+
+          res.status(400).redirect(`/page?id=${req.query.id}`);
+        }
+        console.log(data)
+
+        api.processPayment({
+          request_id,
+        }, (err, data) => {
+          if (err !== null) {
+            console.error(err);
+
+            res.status(400).redirect(`/page?id=${req.query.id}`);
+          }
+
+          console.log(data);
+
+          res.status(200).redirect(`/page?id=${req.query.id}`);
+        });
+      });
+    }
+    else {
+      const externalPayment = new yandexMoney.ExternalPayment(instance_id);
+
+      externalPayment.request({
+        instance_id,
+        to: req.body.account,
+        amount: req.body.amount,
+        message: req.query.id,
+      }, (err, data) => {
+        if (err !== null) {
+          console.error(err);
+
+          res.status(400).redirect(`/page?id=${req.query.id}`);
+        }
+
+        externalPayment.process({
+          'request_id': data.request_id,
+          'ext_auth_success_uri': `http://localhost:3000/page/success?id=${req.query.id}`,
+          'ext_auth_fail_uri': `http://localhost:3000/page/fail?id=${req.query.id}`,
+        }, (err, data) => {
+          if (err !== null) {
+            console.error(err);
+
+            res.status(400).redirect(`/page?id=${req.query.id}`);
+          }
+          console.log(data)
+
+          if (data.status === 'ext_auth_required') {
+            const { acs_uri:action, acs_params:params } = data;
+
+            res.status(200).send(`<!doctype html>${renderToStaticMarkup(Redirect({
+              action,
+              params,
+            }))}`);
+          }
+          else {
+            res.status(200).redirect(`/page?id=${req.query.id}`);
+          }
+        });
+      });
+    }
+  });
+});
+
+app.get('/page/save', (req, res) => {
+  if (req.query.id === undefined) {
+    res.status(400).redirect('/');
+  }
+
+  WidgetModel.findById(req.query.id, (err) => {
+    if (err !== null) {
+      console.error(err);
+
+      res.status(400).redirect('/');
+    }
+
+    res.status(200).send(`<!doctype html>${renderToStaticMarkup(SuccessPage())}`);
+  });
+});
+
+app.get('/page/fail', (req, res) => {
+  if (req.query.id === undefined) {
+    res.status(400).redirect('/');
+  }
+
+  WidgetModel.findById(req.query.id, (err) => {
+    if (err !== null) {
+      console.error(err);
+
+      res.status(400).redirect('/');
+    }
+
+    res.status(200).send(`<!doctype html>${renderToStaticMarkup(FailPage())}`);
   });
 });
 
