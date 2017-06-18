@@ -1,15 +1,10 @@
 import { Router } from 'express';
 import { renderToStaticMarkup } from 'react-dom/server';
-import {
-  Html,
-  Widget,
-  Widgets,
-  AddWidget,
-} from './components';
+import { Page } from '../pages';
 
 const router = Router();
 
-router.get('/page', (req, res) => {
+router.get('/', (req, res) => {
   if (req.query.id === undefined) {
     res.status(400).redirect('/');
   }
@@ -27,7 +22,7 @@ router.get('/page', (req, res) => {
   });
 });
 
-router.post('/page', (req, res) => {
+router.post('/', (req, res) => {
   if (req.query.id === undefined) {
     res.status(400).redirect('/');
   }
@@ -118,7 +113,7 @@ router.post('/page', (req, res) => {
   });
 });
 
-router.get('/page/success', (req, res) => {
+router.get('/success', (req, res) => {
   if (req.query.id === undefined) {
     res.status(400).redirect('/');
   }
@@ -134,7 +129,7 @@ router.get('/page/success', (req, res) => {
   });
 });
 
-router.get('/page/fail', (req, res) => {
+router.get('/fail', (req, res) => {
   if (req.query.id === undefined) {
     res.status(400).redirect('/');
   }
@@ -149,3 +144,6 @@ router.get('/page/fail', (req, res) => {
     res.status(200).send(`<!doctype html>${renderToStaticMarkup(FailPage())}`);
   });
 });
+
+export default router;
+
