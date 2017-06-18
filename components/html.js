@@ -1,11 +1,14 @@
 import React from 'react';
 
-export default ({ children }) => (
+export default ({ page, children }) => (
   <html>
     <head>
       <title>Donat</title>
+      {page === undefined ? null : (<script defer src={`/static/${page}.js`}></script>)}
     </head>
-    <body>{children}</body>
+    <body>
+      <div id="app">{children}</div>
+    </body>
   </html>
 );
 

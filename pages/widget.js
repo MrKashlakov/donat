@@ -1,11 +1,11 @@
 import React from 'react';
 import {
   Html,
-  Widget
+  Widget,
 } from '../components';
 
 export default ({ _id }) => (
-  <Html>
+  <Html page="widget">
     <Widget _id={_id} />
   </Html>
 );
