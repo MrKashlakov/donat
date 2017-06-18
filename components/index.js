@@ -1,6 +1,6 @@
-export { default as Html } from html.js
-export { default as Widget } from widget.js
-export { default as Widgets } from widgets.js
-export { default as AddWidget } from addWidget.js
-export { default as Pay } from pay.js
+export { default as Html } from './html';
+//export { default as Widget } from './widget';
+//export { default as Widgets } from './widgets';
+//export { default as AddWidget } from './addWidget';
+export { default as Pay } from './pay';
 
