@@ -1,13 +1,16 @@
 import { Router } from 'express';
+import { Wallet } from 'yandex-money-sdk';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { User } from '../pages';
 
 const router = Router();
 
-router.get('/user', (req, res) => {
+router.get('/', (req, res) => {
   if (req.cookies.token === undefined) {
     res.status(401).redirect('/');
   }
 
-  const api = new yandexMoney.Wallet(req.cookies.token);
+  const api = new Wallet(req.cookies.token);
 
   api.accountInfo((err, { account }) => {
     if (err !== null) {
@@ -31,4 +34,6 @@ router.get('/user', (req, res) => {
     });
   });
 });
+
+export default router;
 

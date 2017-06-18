@@ -1,5 +1,8 @@
 import React from 'react';
-import { Html } from '../components';
+import {
+  Html,
+  Pay,
+} from '../components';
 
 export default (props) => (
   <Html>

@@ -1,15 +1,15 @@
 import { Router } from 'express';
 import mongoose from 'mongoose';
 import { Wallet } from 'yandex-money-sdk';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { Widget } from '../pages';
+import { Widget as WidgetModel } from '../models';
 
 mongoose.connect('mongodb://localhost/widget');
 
 const router = Router();
-const WidgetModel = mongoose.model('Widget', mongoose.Schema({
-  account: String,
-}));
 
-router.get('/widget', (req, res) => {
+router.get('/', (req, res) => {
   if (req.query.id === undefined) {
     res.status(400).redirect('/');
   }
@@ -27,7 +27,7 @@ router.get('/widget', (req, res) => {
   });
 });
 
-router.post('/widget', (req, res) => {
+router.post('/', (req, res) => {
   if (req.cookies.token === undefined) {
     res.status(400).redirect('/user');
   }
@@ -54,4 +54,6 @@ router.post('/widget', (req, res) => {
     });
   });
 });
+
+export default router;
 

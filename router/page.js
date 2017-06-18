@@ -1,6 +1,14 @@
 import { Router } from 'express';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { Page } from '../pages';
+import { ExternalPayment } from 'yandex-money-sdk';
+import {
+  Page,
+  Redirect,
+  SuccessPage,
+  FailPage,
+} from '../pages';
+import { Widget as WidgetModel } from '../models';
+import { clientId } from '../config';
 
 const router = Router();
 
@@ -27,7 +35,7 @@ router.post('/', (req, res) => {
     res.status(400).redirect('/');
   }
 
-  yandexMoney.ExternalPayment.getInstanceId(clientId, (err, { instance_id }) => {
+  ExternalPayment.getInstanceId(clientId, (err, { instance_id }) => {
     if (err !== null) {
       console.error(err);
 
@@ -35,7 +43,7 @@ router.post('/', (req, res) => {
     }
 
     if (req.body.type === 'wallet') {
-      const api = new yandexMoney.Wallet(req.cookies.token);
+      const api = new Wallet(req.cookies.token);
 
       api.requestPayment({
         'test_payment': true,
@@ -70,7 +78,7 @@ router.post('/', (req, res) => {
       });
     }
     else {
-      const externalPayment = new yandexMoney.ExternalPayment(instance_id);
+      const externalPayment = new ExternalPayment(instance_id);
 
       externalPayment.request({
         instance_id,
