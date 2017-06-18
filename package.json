@@ -59,6 +59,7 @@
     "mongoose": "^4.10.6",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
+    "socket.io": "^2.0.3",
     "yandex-money-sdk": "^0.1.6"
   }
 }

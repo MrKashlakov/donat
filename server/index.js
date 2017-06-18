@@ -15,6 +15,7 @@ const server = require('http').createServer(app);
 const io = require('socket.io').listen(server);
 
 const GetDonationController = require('./controllers/get-donation');
+import CompaniesController from './controllers/companies';
 
 // If you need a backend, e.g. an API, add your custom backend-specific middleware here
 // app.use('/api', myApi);
@@ -33,9 +34,6 @@ const prettyHost = customHost || 'localhost';
 const port = argv.port || process.env.PORT || 3000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
-
-const donationController = new GetDonationController();
-app.post('/donation', (req, res) => donationController.handle(req, res, io));
 
 const yandexMoney = require('yandex-money-sdk');
 const cookieParser = require('cookie-parser');
@@ -111,6 +109,9 @@ app.use(cookieParser());
 app.get('/auth', (req, res) => {
   res.redirect(url);
 });
+
+const companiesController = new CompaniesController();
+app.get('/companies', (req, res) => companiesController.handle(req, res));
 
 app.get('/save', (req, res) => {
   yandexMoney.Wallet.getAccessToken(clientId, req.query.code, REDIRECT_URI, clientSecret, (err, data) => {
