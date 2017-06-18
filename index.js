@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
-//import router from './router';
+import router from './router';
 
 const PORT = '3000';
 const HOST = 'localhost';
@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({
 
 app.use(cookieParser());
 
-//router(app);
+router(app);
 
 app.listen(PORT, HOST, (err) => {
   if (err) {

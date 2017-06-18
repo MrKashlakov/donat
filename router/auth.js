@@ -4,16 +4,16 @@ import {
   clientId,
   redirectURI,
   clientSecret,
-} from './config';
+} from '../config';
 
 const router = Router();
 const url = Wallet.buildObtainTokenUrl(clientId, redirectURI, ['account-info', 'operation-history', 'incoming-transfers', 'payment']);
 
-router.get('/auth', (req, res) => {
+router.get('/', (req, res) => {
   res.redirect(url);
 });
 
-router.get('/auth/save', (req, res) => {
+router.get('/save', (req, res) => {
   Wallet.getAccessToken(clientId, req.query.code, redirectURI, clientSecret, (err, data) => {
     if (err !== null) {
       console.error(err);
@@ -25,4 +25,6 @@ router.get('/auth/save', (req, res) => {
     res.redirect('/user');
   });
 });
+
+export default router;
 
