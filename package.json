@@ -4,10 +4,8 @@
   "description": "Donation service",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --color -p --progress",
     "dev": "babel-node .",
-    "lint": "eslint .",
-    "start": "node build"
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -42,15 +40,13 @@
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
-    "babel-loader": "^7.0.0",
     "babel-preset-env": "^1.5.2",
     "babel-preset-react": "^6.24.1",
     "eslint": "^3.19.0",
     "eslint-config-airbnb": "^15.0.1",
     "eslint-plugin-import": "^2.3.0",
     "eslint-plugin-jsx-a11y": "^5.0.3",
-    "eslint-plugin-react": "^7.1.0",
-    "webpack": "^2.6.1"
+    "eslint-plugin-react": "^7.1.0"
   },
   "dependencies": {
     "body-parser": "^1.17.2",

@@ -1,3 +1,5 @@
+import express from 'express';
+import path from 'path';
 import main from './main';
 import auth from './auth';
 import user from './user';
@@ -7,6 +9,7 @@ import donation from './donation';
 
 export default (app, io) => {
   app.use('/', main);
+  app.use('/static', express.static(path.join(__dirname, '../client')));
   app.use('/auth', auth);
   app.use('/user', user);
   app.use('/widget', widget);
