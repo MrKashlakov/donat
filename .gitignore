@@ -1,11 +1,13 @@
-# Don't check auto-generated stuff into git
-coverage
-build
-node_modules
-stats.json
-
-# Cruft
+# OS X
 .DS_Store
+
+# Node
+
+## Dependency directories
+node_modules
+
+## Logs
 npm-debug.log
-.idea
-config.json
+
+# Project
+build

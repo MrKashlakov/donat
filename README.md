@@ -1,3 +1,9 @@
+# Donat
+
+Donation service.
+
+Structure:
+
 / – main
 
 /auth - Yandex.Money authorization
