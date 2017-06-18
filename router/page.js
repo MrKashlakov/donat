@@ -1,15 +1,18 @@
 import { Router } from 'express';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { ExternalPayment } from 'yandex-money-sdk';
 import {
-  Html,
-  Widget,
-  Widgets,
-  AddWidget,
-} from './components';
+  Page,
+  Redirect,
+  SuccessPage,
+  FailPage,
+} from '../pages';
+import { Widget as WidgetModel } from '../models';
+import { clientId } from '../config';
 
 const router = Router();
 
-router.get('/page', (req, res) => {
+router.get('/', (req, res) => {
   if (req.query.id === undefined) {
     res.status(400).redirect('/');
   }
@@ -27,12 +30,12 @@ router.get('/page', (req, res) => {
   });
 });
 
-router.post('/page', (req, res) => {
+router.post('/', (req, res) => {
   if (req.query.id === undefined) {
     res.status(400).redirect('/');
   }
 
-  yandexMoney.ExternalPayment.getInstanceId(clientId, (err, { instance_id }) => {
+  ExternalPayment.getInstanceId(clientId, (err, { instance_id }) => {
     if (err !== null) {
       console.error(err);
 
@@ -40,7 +43,7 @@ router.post('/page', (req, res) => {
     }
 
     if (req.body.type === 'wallet') {
-      const api = new yandexMoney.Wallet(req.cookies.token);
+      const api = new Wallet(req.cookies.token);
 
       api.requestPayment({
         'test_payment': true,
@@ -75,7 +78,7 @@ router.post('/page', (req, res) => {
       });
     }
     else {
-      const externalPayment = new yandexMoney.ExternalPayment(instance_id);
+      const externalPayment = new ExternalPayment(instance_id);
 
       externalPayment.request({
         instance_id,
@@ -118,7 +121,7 @@ router.post('/page', (req, res) => {
   });
 });
 
-router.get('/page/success', (req, res) => {
+router.get('/success', (req, res) => {
   if (req.query.id === undefined) {
     res.status(400).redirect('/');
   }
@@ -134,7 +137,7 @@ router.get('/page/success', (req, res) => {
   });
 });
 
-router.get('/page/fail', (req, res) => {
+router.get('/fail', (req, res) => {
   if (req.query.id === undefined) {
     res.status(400).redirect('/');
   }
@@ -149,3 +152,6 @@ router.get('/page/fail', (req, res) => {
     res.status(200).send(`<!doctype html>${renderToStaticMarkup(FailPage())}`);
   });
 });
+
+export default router;
+

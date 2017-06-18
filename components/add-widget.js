@@ -5,3 +5,4 @@ export default () => (
     <button type="submit">Add widget</button>
   </form>
 );
+
