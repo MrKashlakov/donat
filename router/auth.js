@@ -7,7 +7,7 @@ import {
 } from '../config';
 
 const router = Router();
-const url = Wallet.buildObtainTokenUrl(clientId, redirectURI, ['account-info', 'operation-history', 'incoming-transfers', 'payment']);
+const url = Wallet.buildObtainTokenUrl(clientId, redirectURI, ['account-info', 'operation-history', 'incoming-transfers']);
 
 router.get('/', (req, res) => {
   res.redirect(url);

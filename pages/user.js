@@ -2,8 +2,8 @@ import React from 'react';
 import {
   Html,
   AddWidget,
-  Widgets
-} from '.';
+  Widgets,
+} from '../components';
 
 export default ({ widgets }) => (
   <Html>

@@ -2,8 +2,12 @@ import React from 'react';
 import { Widget } from '.';
 
 export default ({ widgets }) => (
-  <div>{widgets.map(({ _id }, key) => (
-    <Widget key={key} _id={_id} />
-  ))}</div>
+  <ul>
+    {widgets.map(({ _id }, key) => (
+      <li key={key}>
+        <Widget _id={`${_id}`} />
+      </li>
+    ))}
+  </ul>
 );
 
