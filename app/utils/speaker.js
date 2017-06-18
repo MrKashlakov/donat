@@ -15,7 +15,7 @@ class Speaker {
    * Get available voices by language
    * @param {String} lang actual language, for example en-GB or ru-RU
    */
-  getVoicesByLang(lang) {
+  static getVoicesByLang(lang) {
     const voices = speechSynthesis.getVoices();
     return voices.filter((voice) => {
       return voice.lang === lang;
